@@ -185,23 +185,26 @@ namespace CharacterReset
                             NetMessage.SendData(50, player.Index, -1, "", player.Index, 0f, 0f, 0f, 0);
                         }
 
-                        ClearInventory(player);
-
-                        if (Main.ServerSideCharacter)
+                        if (player.Group.HasPermission("characterreset.*") || player.Group.HasPermission("characterreset.inventory"))
                         {
-                            int slot = 0;
-                            Item give;
-                            foreach (NetItem item in StarterItems)
-                            {
-                                give = TShock.Utils.GetItemById(item.netID);
-                                give.stack = item.stack;
-                                give.prefix = (byte)item.prefix; //does this work...?
+                            ClearInventory(player);
 
-                                if (player.InventorySlotAvailable)
+                            if (Main.ServerSideCharacter)
+                            {
+                                int slot = 0;
+                                Item give;
+                                foreach (NetItem item in StarterItems)
                                 {
-                                    player.TPlayer.inventory[slot] = give;
-                                    NetMessage.SendData((int)PacketTypes.PlayerSlot, -1, -1, string.Empty, player.Index, slot);
-                                    slot++;
+                                    give = TShock.Utils.GetItemById(item.netID);
+                                    give.stack = item.stack;
+                                    give.prefix = (byte)item.prefix; //does this work...?
+
+                                    if (player.InventorySlotAvailable)
+                                    {
+                                        player.TPlayer.inventory[slot] = give;
+                                        NetMessage.SendData((int)PacketTypes.PlayerSlot, -1, -1, string.Empty, player.Index, slot);
+                                        slot++;
+                                    }
                                 }
                             }
                         }
