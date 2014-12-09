@@ -46,8 +46,6 @@ namespace CharacterReset
                 ServerApi.Hooks.NetGetData.Register(this, OnGetData);
 
                 Commands.ChatCommands.Add(new Command(new List<string>() { "characterreset.stats", "characterreset.inventory" }, ResetCharacter, "resetcharacter"));
-                //Commands.ChatCommands.Add(new Command(new List<string>() { "characterreset.stats.hidden", "characterreset.inventory.hidden" }, ResetCharacterHidden, "/resetcharacter"));
-                Commands.ChatCommands.Add(new Command("characterreset.hidden", ResetCharacterHidden, "/resetcharacter"));
 
                 if (Main.ServerSideCharacter)
                 {
@@ -223,7 +221,7 @@ namespace CharacterReset
                                 break;
 
                             case "stats":
-                                if (player.Group.HasPermission("characterreset.stats") || player.Group.HasPermission("characterreset.stats.hidden"))
+                                if (player.Group.HasPermission("characterreset.stats"))
                                 {
                                     ResetStats(player);
                                 }
@@ -234,7 +232,7 @@ namespace CharacterReset
                                 break;
 
                             case "inventory":
-                                if (player.Group.HasPermission("characterreset.inventory") || player.Group.HasPermission("characterreset.inventory.hidden"))
+                                if (player.Group.HasPermission("characterreset.inventory"))
                                 {
                                     ResetInventory(player);
                                 }
@@ -255,77 +253,6 @@ namespace CharacterReset
                 }
             }
 
-            private void ResetCharacterHidden(CommandArgs args) //used for CmdAlias/anything else that wants to bypass the checks
-            {
-                TSPlayer player = args.Player;
-                if (player != null)
-                {
-                    if (Main.ServerSideCharacter)
-                    {
-                        if (args.Parameters.Count == 0)
-                        {
-                            player.SendErrorMessage("Invalid syntax! Proper syntax: /resetcharacter <all/stats/inventory>");
-                            return;
-                        }
-
-                        var subcmd = args.Parameters[0].ToLower();
-
-                        switch (subcmd)
-                        {
-                            case "all":
-                                player.TPlayer.statLife = startHealth;
-                                player.TPlayer.statLifeMax = startHealth;
-                                player.TPlayer.statMana = startMana;
-                                player.TPlayer.statManaMax = startMana;
-
-                                NetMessage.SendData(4, -1, -1, player.Name, player.Index, 0f, 0f, 0f, 0);
-                                NetMessage.SendData(42, -1, -1, "", player.Index, 0f, 0f, 0f, 0);
-                                NetMessage.SendData(16, -1, -1, "", player.Index, 0f, 0f, 0f, 0);
-                                NetMessage.SendData(50, -1, -1, "", player.Index, 0f, 0f, 0f, 0);
-
-                                NetMessage.SendData(4, player.Index, -1, player.Name, player.Index, 0f, 0f, 0f, 0);
-                                NetMessage.SendData(42, player.Index, -1, "", player.Index, 0f, 0f, 0f, 0);
-                                NetMessage.SendData(16, player.Index, -1, "", player.Index, 0f, 0f, 0f, 0);
-                                NetMessage.SendData(50, player.Index, -1, "", player.Index, 0f, 0f, 0f, 0);
-
-                                ClearInventory(player);
-
-                                int slot = 0;
-                                Item give;
-                                foreach (NetItem item in StarterItems)
-                                {
-                                    give = TShock.Utils.GetItemById(item.netID);
-                                    give.stack = item.stack;
-                                    give.prefix = (byte)item.prefix;
-
-                                    if (player.InventorySlotAvailable)
-                                    {
-                                        player.TPlayer.inventory[slot] = give;
-                                        NetMessage.SendData((int)PacketTypes.PlayerSlot, -1, -1, string.Empty, player.Index, slot);
-                                        slot++;
-                                    }
-                                }
-                                player.SendSuccessMessage("Your character was reset to default!");
-                                break;
-
-                            case "stats":
-                                ResetStats(player);
-                                break;
-
-                            case "inventory":
-                                ResetInventory(player);
-                                break;
-
-                            default:
-                                player.SendErrorMessage("Invalid syntax! Proper syntax: /resetcharacter <all/stats/inventory>");
-                                break;
-
-                        }
-                    }
-                    else
-                        player.SendErrorMessage("SSC isn't enabled on this server!");
-                }
-            }
 
             public void ResetStats(TSPlayer player)
             {
