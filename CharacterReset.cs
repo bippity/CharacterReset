@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
-using MySql.Data.MySqlClient;
 using TShockAPI;
 using TShockAPI.DB;
 using TShockAPI.Hooks;
@@ -185,11 +184,11 @@ namespace CharacterReset
                             case "all":
                                 try
                                 {
-                                    if (player.Group.HasPermission("characterreset.*"))
+                                    if (player.Group.HasPermission("characterreset.stats") && player.Group.HasPermission("characterreset.inventory") && player.Group.HasPermission("characterreset.quests"))
                                     {
                                         ResetStats(player);
                                         ResetInventory(player);
-                                        //ResetQuests(player);
+                                        ResetQuests(player);
                                         player.SendSuccessMessage("Your character was reset to default!");
                                     }
                                     else
