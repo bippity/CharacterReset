@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
+using MySql.Data.MySqlClient;
 using TShockAPI;
+using TShockAPI.DB;
 using TShockAPI.Hooks;
 using Terraria;
 using TerrariaApi.Server;
@@ -15,7 +18,7 @@ namespace CharacterReset
         #region Plugin Info
             public override Version Version
             {
-                get { return new Version("1.1"); }
+                get { return new Version("1.2"); }
             }
             public override string Name
             {
@@ -45,7 +48,8 @@ namespace CharacterReset
             {
                 ServerApi.Hooks.NetGetData.Register(this, OnGetData);
 
-                Commands.ChatCommands.Add(new Command(new List<string>() { "characterreset.stats", "characterreset.inventory" }, ResetCharacter, "resetcharacter"));
+                Commands.ChatCommands.Add(new Command(new List<string>() { "characterreset.stats", "characterreset.inventory", "characterreset.quests" }, ResetCharacter, "resetcharacter"));
+                Commands.ChatCommands.Add(new Command("characterreset.players", ResetPlayers, "resetplayers"));
 
                 if (Main.ServerSideCharacter)
                 {
@@ -95,9 +99,10 @@ namespace CharacterReset
                 if (!Main.ServerSideCharacter)
                 {
                     Log.ConsoleError("[CharacterReset] This plugin will not work properly with ServerSidedCharacters disabled.");
+                    return;
                 }
 
-                if (Main.ServerSideCharacter && !TShock.Players[who].IsLoggedIn)
+                if (!TShock.Players[who].IsLoggedIn)
                 {
                     var player = TShock.Players[who];
                     player.TPlayer.SpawnX = -1;
@@ -169,7 +174,7 @@ namespace CharacterReset
                     {
                         if (args.Parameters.Count == 0)
                         {
-                            player.SendErrorMessage("Invalid syntax! Proper syntax: /resetcharacter <all/stats/inventory>");
+                            player.SendErrorMessage("Invalid syntax! Proper syntax: /resetcharacter <all/stats/inventory/quests>");
                             return;
                         }
 
@@ -178,72 +183,89 @@ namespace CharacterReset
                         switch (subcmd)
                         {
                             case "all":
-                                if (player.Group.HasPermission("characterreset.*"))
+                                try
                                 {
-                                    player.TPlayer.statLife = startHealth;
-                                    player.TPlayer.statLifeMax = startHealth;
-                                    player.TPlayer.statMana = startMana;
-                                    player.TPlayer.statManaMax = startMana;
-
-                                    NetMessage.SendData(4, -1, -1, player.Name, player.Index, 0f, 0f, 0f, 0);
-                                    NetMessage.SendData(42, -1, -1, "", player.Index, 0f, 0f, 0f, 0);
-                                    NetMessage.SendData(16, -1, -1, "", player.Index, 0f, 0f, 0f, 0);
-                                    NetMessage.SendData(50, -1, -1, "", player.Index, 0f, 0f, 0f, 0);
-
-                                    NetMessage.SendData(4, player.Index, -1, player.Name, player.Index, 0f, 0f, 0f, 0);
-                                    NetMessage.SendData(42, player.Index, -1, "", player.Index, 0f, 0f, 0f, 0);
-                                    NetMessage.SendData(16, player.Index, -1, "", player.Index, 0f, 0f, 0f, 0);
-                                    NetMessage.SendData(50, player.Index, -1, "", player.Index, 0f, 0f, 0f, 0);
-
-                                    ClearInventory(player);
-
-                                    int slot = 0;
-                                    Item give;
-                                    foreach (NetItem item in StarterItems)
+                                    if (player.Group.HasPermission("characterreset.*"))
                                     {
-                                        give = TShock.Utils.GetItemById(item.netID);
-                                        give.stack = item.stack;
-                                        give.prefix = (byte)item.prefix; //does this work...?
-
-                                        if (player.InventorySlotAvailable)
-                                        {
-                                            player.TPlayer.inventory[slot] = give;
-                                            NetMessage.SendData((int)PacketTypes.PlayerSlot, -1, -1, string.Empty, player.Index, slot);
-                                            slot++;
-                                        }
+                                        ResetStats(player);
+                                        ResetInventory(player);
+                                        //ResetQuests(player);
+                                        player.SendSuccessMessage("Your character was reset to default!");
                                     }
-                                    player.SendSuccessMessage("Your character was reset to default!");
+                                    else
+                                    {
+                                        player.SendErrorMessage("You don't have permission to reset everything.");
+                                    }
                                 }
-                                else
+                                catch (Exception ex)
                                 {
-                                    player.SendErrorMessage("You don't have permission to reset everything.");
+                                    Log.ConsoleError(ex.ToString());
+                                    player.SendErrorMessage("An error occurred while resetting!");
                                 }
                                 break;
 
                             case "stats":
-                                if (player.Group.HasPermission("characterreset.stats"))
+                                try
                                 {
-                                    ResetStats(player);
+                                    if (player.Group.HasPermission("characterreset.stats"))
+                                    {
+                                        ResetStats(player);
+                                        player.SendSuccessMessage("Your Health & Mana were reset to default!");
+                                    }
+                                    else
+                                    {
+                                        player.SendErrorMessage("You don't have permission to reset your stats.");
+                                    }
                                 }
-                                else
+                                catch (Exception ex)
                                 {
-                                    player.SendErrorMessage("You don't have permission to reset your stats.");
+                                    Log.ConsoleError(ex.ToString());
+                                    player.SendErrorMessage("An error occurred while resetting!"); 
                                 }
                                 break;
 
                             case "inventory":
-                                if (player.Group.HasPermission("characterreset.inventory"))
+                                try
                                 {
-                                    ResetInventory(player);
+                                    if (player.Group.HasPermission("characterreset.inventory"))
+                                    {
+                                        ResetInventory(player);
+                                        player.SendSuccessMessage("Your inventory was reset to default!");
+                                    }
+                                    else
+                                    {
+                                        player.SendErrorMessage("You don't have permission to reset your inventory.");
+                                    }
                                 }
-                                else
+                                catch (Exception ex)
                                 {
-                                    player.SendErrorMessage("You don't have permission to reset your inventory.");
+                                    Log.ConsoleError(ex.ToString());
+                                    player.SendErrorMessage("An error occurred while resetting!");
+                                }
+                                break;
+
+                            case "quests":
+                                try
+                                {
+                                    if (player.Group.HasPermission("characterreset.quests"))
+                                    {
+                                        ResetQuests(player);
+                                        player.SendSuccessMessage("Your quests were reset to 0!");
+                                    }
+                                    else
+                                    {
+                                        player.SendErrorMessage("You don't have permission to reset your quests.");
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Log.ConsoleError(ex.ToString());
+                                    player.SendErrorMessage("An error occurred while resetting!");
                                 }
                                 break;
 
                             default:
-                                player.SendErrorMessage("Invalid syntax! Proper syntax: /resetcharacter <all/stats/inventory>");
+                                player.SendErrorMessage("Invalid syntax! Proper syntax: /resetcharacter <all/stats/inventory/quests>");
                                 break;
 
                         }
@@ -253,6 +275,145 @@ namespace CharacterReset
                 }
             }
 
+            public void ResetPlayers(CommandArgs args)
+            {
+                TSPlayer player = args.Player;
+
+                if (Main.ServerSideCharacter)
+                {
+                    if (args.Parameters.Count == 0)
+                    {
+                        player.SendErrorMessage("Invalid syntax! Proper syntax: /resetplayers <all/stats/inventory/quests>");
+                        return;
+                    }
+
+                    var subcmd = args.Parameters[0].ToLower();
+                    IDbConnection db = TShock.CharacterDB.database;
+
+                    switch (subcmd)
+                    {
+                        case "all":
+                            try
+                            {
+                                TSPlayer.All.SendWarningMessage("Resetting all players...");
+
+                                foreach (TSPlayer temp in TShock.Players) //resets online players
+                                {
+                                    if (temp != null)
+                                    {
+                                        ResetStats(temp);
+                                        ResetInventory(temp);
+                                        ResetQuests(temp);
+                                    }
+                                }
+
+                                db.Query("DELETE FROM tsCharacter;"); //deletes all characters in database. Doesn't affect online players unless improper shutdown happens.
+
+                                TSPlayer.All.SendSuccessMessage("All players have been reset!");
+                                Log.ConsoleInfo("All players have been reset.");
+                            }
+                            catch (Exception ex)
+                            {
+                                TSPlayer.All.SendErrorMessage("An error occurred while resetting!");
+                                Log.ConsoleError(ex.ToString());   
+                            }
+                            break;
+
+                        case "stats":
+                            try
+                            {
+                                TSPlayer.All.SendWarningMessage("Resetting all players' stats...");
+
+                                foreach (TSPlayer temp in TShock.Players)
+                                {
+                                    if (temp != null)
+                                    ResetStats(temp);
+                                }
+
+                                db.Query("UPDATE tsCharacter SET Health = @0, MaxHealth = @1, Mana = @2, MaxMana = @3", startHealth, startHealth, startMana, startMana);
+
+                                TSPlayer.All.SendSuccessMessage("All players' stats have been reset!");
+                                Log.ConsoleInfo("All players' stats have been reset.");
+                            }
+                            catch (Exception ex)
+                            {
+                                TSPlayer.All.SendErrorMessage("An error occurred while resetting!");
+                                Log.ConsoleError(ex.ToString());
+                            }
+                            break;
+
+                        case "inventory":
+                            try
+                            {
+                                TSPlayer.All.SendWarningMessage("Resetting all players' inventory...");
+
+                                foreach (TSPlayer temp in TShock.Players)
+                                {
+                                    if (temp != null)
+                                    ResetInventory(temp);
+                                }
+
+                                var inventory = new StringBuilder(); //TShock's SeedInitialData method
+                                for (int i = 0; i < Terraria.Main.maxInventory; i++)
+                                {
+                                    if (i > 0)
+                                    {
+                                        inventory.Append("~");
+                                    }
+                                    if (i < TShock.ServerSideCharacterConfig.StartingInventory.Count)
+                                    {
+                                        var item = TShock.ServerSideCharacterConfig.StartingInventory[i];
+                                        inventory.Append(item.netID).Append(',').Append(item.stack).Append(',').Append(item.prefix);
+                                    }
+                                    else
+                                    {
+                                        inventory.Append("0,0,0");
+                                    }
+                                }
+                                string initialItems = inventory.ToString();
+                                db.Query("UPDATE tsCharacter SET Inventory = @0;", initialItems);
+
+                                TSPlayer.All.SendSuccessMessage("All players' inventory has been reset!");
+                                Log.ConsoleInfo("All players' inventory has been reset.");
+                            }
+                            catch (Exception ex)
+                            {
+                                TSPlayer.All.SendErrorMessage("An error occurred while resetting!");
+                                Log.ConsoleError(ex.ToString());
+                            }
+                            break;
+
+                        case "quests":
+                            try
+                            {
+                                TSPlayer.All.SendWarningMessage("Resetting all players' quests...");
+
+                                foreach (TSPlayer temp in TShock.Players)
+                                {
+                                    if (temp != null)
+                                    ResetQuests(temp);
+                                }
+
+                                db.Query("UPDATE tsCharacter SET questsCompleted = @0;", 0);
+                             
+                                TSPlayer.All.SendSuccessMessage("All players' quests have been reset to 0!");
+                                Log.ConsoleInfo("All players' quests have been reset to 0");
+                            }
+                            catch (Exception ex)
+                            {
+                                TSPlayer.All.SendErrorMessage("An error occurred while resetting!");
+                                Log.ConsoleError(ex.ToString());
+                            }
+                            break;
+
+                        default:
+                            player.SendErrorMessage("Invalid syntax! Proper syntax: /resetplayers <all/stats/inventory/quests>");
+                            break;
+                    }
+                }
+                else
+                    player.SendErrorMessage("SSC isn't enabled on this server!");
+            }
 
             public void ResetStats(TSPlayer player)
             {
@@ -270,8 +431,6 @@ namespace CharacterReset
                 NetMessage.SendData(42, player.Index, -1, "", player.Index, 0f, 0f, 0f, 0);
                 NetMessage.SendData(16, player.Index, -1, "", player.Index, 0f, 0f, 0f, 0);
                 NetMessage.SendData(50, player.Index, -1, "", player.Index, 0f, 0f, 0f, 0);
-
-                player.SendSuccessMessage("Your Health & Mana were reset to default!");
             }
 
             public void ResetInventory(TSPlayer player)
@@ -293,7 +452,13 @@ namespace CharacterReset
                         slot++;
                     }
                 }
-                player.SendSuccessMessage("Your inventory was reset to default!");
+            }
+
+            public void ResetQuests(TSPlayer player)
+            {
+                player.TPlayer.anglerQuestsFinished = 0;
+
+                NetMessage.SendData(76, -1, -1, "", player.Index);
             }
         #endregion
     }
