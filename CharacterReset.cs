@@ -49,6 +49,7 @@ namespace CharacterReset
 
                 Commands.ChatCommands.Add(new Command(new List<string>() { "characterreset.stats", "characterreset.inventory", "characterreset.quests" }, ResetCharacter, "resetcharacter"));
                 Commands.ChatCommands.Add(new Command("characterreset.players", ResetPlayers, "resetplayers"));
+                Commands.ChatCommands.Add(new Command("characterreset.players", ResetPlayer, "resetplayer"));
 
                 if (Main.ServerSideCharacter)
                 {
@@ -270,6 +271,171 @@ namespace CharacterReset
                         }
                     }
                     else
+                    player.SendErrorMessage("SSC isn't enabled on this server!");
+                }
+            }
+
+            public void ResetPlayer(CommandArgs args)
+            {
+                TSPlayer player = args.Player;
+
+                if (Main.ServerSideCharacter)
+                {
+                    if (args.Parameters.Count < 2)
+                    {
+                        player.SendErrorMessage("Invalid syntax! Proper syntax: /resetplayer <username> <all/stats/inventory/quests>");
+                        return;
+                    }
+
+                    string username = args.Parameters[0];
+                    var subcmd = args.Parameters[1].ToLower();
+                    IDbConnection db = TShock.CharacterDB.database;
+                    bool online = true;
+                    int userid = 0;
+
+                    List<TSPlayer> players = TShock.Utils.FindPlayer(username);
+                    if (players.Count < 1) //if player not found online
+                    {
+                        online = false;
+                        player.SendWarningMessage("Player not found online. Searching database...");
+                    }
+                    else if (players.Count > 1)
+                    {
+                        string list = string.Join(", ", players.Select(p => p.Name));
+                        player.SendErrorMessage("Multiple players found: " + list);
+                        return;
+                    }
+                    
+                    if (!online)
+                    {
+                        if (TShock.Users.GetUserByName(username) == null)
+                        {
+                            player.SendErrorMessage("Username \"{0}\" not found in database.", username);
+                            return;
+                        }
+                        else
+                        {
+                            userid = TShock.Users.GetUserByName(username).ID;
+                        }
+                    } 
+
+                    switch (subcmd)
+                    {
+                        case "all":
+                            try
+                            {
+                                if (online)
+                                {
+                                    ResetStats(players[0]);
+                                    ResetInventory(players[0]);
+                                    ResetQuests(players[0]);
+                                    player.SendSuccessMessage(players[0].UserAccountName + "'s character has been reset!");
+                                    players[0].SendInfoMessage("Your character has been reset!");
+                                }
+                                else
+                                {
+                                    TShock.CharacterDB.RemovePlayer(userid);
+                                    player.SendSuccessMessage(username + "'s character has been reset!");
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                player.SendErrorMessage("An error occurred while resetting!");
+                                Log.ConsoleError(ex.ToString());
+                            }
+                            break;
+
+                        case "stats":
+                            try
+                            {
+                                if (online)
+                                {
+                                    ResetStats(players[0]);
+                                    player.SendSuccessMessage(players[0].UserAccountName + "'s stats have been reset!");
+                                    players[0].SendInfoMessage("Your stats have been reset!");
+                                }
+                                else
+                                {
+                                    db.Query("UPDATE tsCharacter SET Health = @0, MaxHealth = @1, Mana = @2, MaxMana = @3 WHERE Account = @4;", startHealth, startHealth, startMana, startMana, userid);
+                                    player.SendSuccessMessage(username + "'s stats have been reset!");
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                player.SendErrorMessage("An error occurred while resetting!");
+                                Log.ConsoleError(ex.ToString());
+                            }
+                            break;
+
+                        case "inventory":
+                            try
+                            {
+                                if (online)
+                                {
+                                    ResetInventory(players[0]);
+                                    player.SendSuccessMessage(players[0].UserAccountName + "'s inventory has been reset!");
+                                    players[0].SendInfoMessage("Your inventory has been reset!");
+                                }
+                                else
+                                {
+                                    var inventory = new StringBuilder();
+                                    for (int i = 0; i < Terraria.Main.maxInventory; i++)
+                                    {
+                                        if (i > 0)
+                                        {
+                                            inventory.Append("~");
+                                        }
+                                        if (i < TShock.ServerSideCharacterConfig.StartingInventory.Count)
+                                        {
+                                            var item = TShock.ServerSideCharacterConfig.StartingInventory[i];
+                                            inventory.Append(item.netID).Append(',').Append(item.stack).Append(',').Append(item.prefix);
+                                        }
+                                        else
+                                        {
+                                            inventory.Append("0,0,0");
+                                        }
+                                    }
+                                    string initialItems = inventory.ToString();
+                                    db.Query("UPDATE tsCharacter SET Inventory = @0 WHERE Account = @1;", initialItems, userid);
+                                    player.SendSuccessMessage(username + "'s inventory has been reset!");
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                player.SendErrorMessage("An error occurred while resetting!");
+                                Log.ConsoleError(ex.ToString());
+                            }
+                            break;
+
+                        case "quests":
+                            try
+                            {
+                                if (online)
+                                {
+                                    ResetQuests(players[0]);
+                                    player.SendSuccessMessage(players[0].UserAccountName + "'s quests have been reset to 0!");
+                                    players[0].SendInfoMessage("Your quests have been reset to 0!");
+                                }
+                                else
+                                {
+                                    db.Query("UPDATE tsCharacter SET questsCompleted = @0 WHERE Account = @1;", 0, userid);
+                                    player.SendSuccessMessage(username + "'s quests have been reset to 0!");
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                player.SendErrorMessage("An error occurred while resetting!");
+                                Log.ConsoleError(ex.ToString());
+                            }
+                            break;
+
+                        default:
+                            player.SendErrorMessage("Invalid syntax! Proper syntax: /resetplayer <username> <all/stats/inventory/quests>");
+                            break;
+                    }
+                }
+                else
+                {
                     player.SendErrorMessage("SSC isn't enabled on this server!");
                 }
             }
