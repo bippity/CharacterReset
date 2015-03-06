@@ -11,7 +11,7 @@ using TerrariaApi.Server;
 
 namespace CharacterReset
 {
-    [ApiVersion(1, 16)]
+    [ApiVersion(1, 17)]
     public class CharacterReset : TerrariaPlugin
     {
         #region Plugin Info
@@ -98,7 +98,7 @@ namespace CharacterReset
             {
                 if (!Main.ServerSideCharacter)
                 {
-                    Log.ConsoleError("[CharacterReset] This plugin will not work properly with ServerSidedCharacters disabled.");
+                    TShock.Log.ConsoleError("[CharacterReset] This plugin will not work properly with ServerSidedCharacters disabled.");
                     return;
                 }
 
@@ -199,7 +199,7 @@ namespace CharacterReset
                                 }
                                 catch (Exception ex)
                                 {
-                                    Log.ConsoleError(ex.ToString());
+                                    TShock.Log.ConsoleError(ex.ToString());
                                     player.SendErrorMessage("An error occurred while resetting!");
                                 }
                                 break;
@@ -219,7 +219,7 @@ namespace CharacterReset
                                 }
                                 catch (Exception ex)
                                 {
-                                    Log.ConsoleError(ex.ToString());
+                                    TShock.Log.ConsoleError(ex.ToString());
                                     player.SendErrorMessage("An error occurred while resetting!"); 
                                 }
                                 break;
@@ -239,7 +239,7 @@ namespace CharacterReset
                                 }
                                 catch (Exception ex)
                                 {
-                                    Log.ConsoleError(ex.ToString());
+                                    TShock.Log.ConsoleError(ex.ToString());
                                     player.SendErrorMessage("An error occurred while resetting!");
                                 }
                                 break;
@@ -259,7 +259,7 @@ namespace CharacterReset
                                 }
                                 catch (Exception ex)
                                 {
-                                    Log.ConsoleError(ex.ToString());
+                                    TShock.Log.ConsoleError(ex.ToString());
                                     player.SendErrorMessage("An error occurred while resetting!");
                                 }
                                 break;
@@ -341,7 +341,7 @@ namespace CharacterReset
                             catch (Exception ex)
                             {
                                 player.SendErrorMessage("An error occurred while resetting!");
-                                Log.ConsoleError(ex.ToString());
+                                TShock.Log.ConsoleError(ex.ToString());
                             }
                             break;
 
@@ -363,7 +363,7 @@ namespace CharacterReset
                             catch (Exception ex)
                             {
                                 player.SendErrorMessage("An error occurred while resetting!");
-                                Log.ConsoleError(ex.ToString());
+                                TShock.Log.ConsoleError(ex.ToString());
                             }
                             break;
 
@@ -403,7 +403,7 @@ namespace CharacterReset
                             catch (Exception ex)
                             {
                                 player.SendErrorMessage("An error occurred while resetting!");
-                                Log.ConsoleError(ex.ToString());
+                                TShock.Log.ConsoleError(ex.ToString());
                             }
                             break;
 
@@ -425,7 +425,7 @@ namespace CharacterReset
                             catch (Exception ex)
                             {
                                 player.SendErrorMessage("An error occurred while resetting!");
-                                Log.ConsoleError(ex.ToString());
+                                TShock.Log.ConsoleError(ex.ToString());
                             }
                             break;
 
@@ -475,12 +475,12 @@ namespace CharacterReset
                                 db.Query("DELETE FROM tsCharacter;"); //deletes all characters in database. Doesn't affect online players unless improper shutdown happens.
 
                                 TSPlayer.All.SendSuccessMessage("All players have been reset!");
-                                Log.ConsoleInfo("All players have been reset.");
+                                TShock.Log.ConsoleInfo("All players have been reset.");
                             }
                             catch (Exception ex)
                             {
                                 TSPlayer.All.SendErrorMessage("An error occurred while resetting!");
-                                Log.ConsoleError(ex.ToString());   
+                                TShock.Log.ConsoleError(ex.ToString());   
                             }
                             break;
 
@@ -498,12 +498,12 @@ namespace CharacterReset
                                 db.Query("UPDATE tsCharacter SET Health = @0, MaxHealth = @1, Mana = @2, MaxMana = @3", startHealth, startHealth, startMana, startMana);
 
                                 TSPlayer.All.SendSuccessMessage("All players' stats have been reset!");
-                                Log.ConsoleInfo("All players' stats have been reset.");
+                                TShock.Log.ConsoleInfo("All players' stats have been reset.");
                             }
                             catch (Exception ex)
                             {
                                 TSPlayer.All.SendErrorMessage("An error occurred while resetting!");
-                                Log.ConsoleError(ex.ToString());
+                                TShock.Log.ConsoleError(ex.ToString());
                             }
                             break;
 
@@ -539,12 +539,12 @@ namespace CharacterReset
                                 db.Query("UPDATE tsCharacter SET Inventory = @0;", initialItems);
 
                                 TSPlayer.All.SendSuccessMessage("All players' inventory has been reset!");
-                                Log.ConsoleInfo("All players' inventory has been reset.");
+                                TShock.Log.ConsoleInfo("All players' inventory has been reset.");
                             }
                             catch (Exception ex)
                             {
                                 TSPlayer.All.SendErrorMessage("An error occurred while resetting!");
-                                Log.ConsoleError(ex.ToString());
+                                TShock.Log.ConsoleError(ex.ToString());
                             }
                             break;
 
@@ -562,12 +562,12 @@ namespace CharacterReset
                                 db.Query("UPDATE tsCharacter SET questsCompleted = @0;", 0);
                              
                                 TSPlayer.All.SendSuccessMessage("All players' quests have been reset to 0!");
-                                Log.ConsoleInfo("All players' quests have been reset to 0");
+                                TShock.Log.ConsoleInfo("All players' quests have been reset to 0");
                             }
                             catch (Exception ex)
                             {
                                 TSPlayer.All.SendErrorMessage("An error occurred while resetting!");
-                                Log.ConsoleError(ex.ToString());
+                                TShock.Log.ConsoleError(ex.ToString());
                             }
                             break;
 
