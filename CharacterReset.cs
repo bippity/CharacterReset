@@ -116,25 +116,25 @@ namespace CharacterReset
 
             private void ClearInventory(TSPlayer player) //The inventory clearing method from ClearInvSSC
             {
-                for (int i = 0; i < NetItem.maxNetInventory; i++)
+                for (int i = 0; i < NetItem.MaxInventory; i++)
                 {
-                    if (i < NetItem.maxNetInventory - (NetItem.armorSlots + NetItem.dyeSlots)) //main inventory excluding the special slots
+                    if (i < NetItem.MaxInventory - (NetItem.ArmorSlots + NetItem.DyeSlots)) //main inventory excluding the special slots
                     {
                         player.TPlayer.inventory[i].netDefaults(0);
                     }
-                    else if (i < NetItem.maxNetInventory - NetItem.dyeSlots)
+                    else if (i < NetItem.MaxInventory - NetItem.DyeSlots)
                     {
-                        var index = i - (NetItem.maxNetInventory - (NetItem.armorSlots + NetItem.dyeSlots));
+                        var index = i - (NetItem.MaxInventory - (NetItem.ArmorSlots + NetItem.DyeSlots));
                         player.TPlayer.armor[index].netDefaults(0);
                     }
                     else
                     {
-                        var index = i - (NetItem.maxNetInventory - NetItem.dyeSlots);
+                        var index = i - (NetItem.MaxInventory - NetItem.DyeSlots);
                         player.TPlayer.dye[index].netDefaults(0);
                     }
                 }
 
-                for (int k = 0; k < NetItem.maxNetInventory; k++)
+                for (int k = 0; k < NetItem.MaxInventory; k++)
                 {
                     NetMessage.SendData(5, -1, -1, "", player.Index, (float)k, 0f, 0f, 0);
                 }
@@ -149,7 +149,7 @@ namespace CharacterReset
                 NetMessage.SendData(16, -1, -1, "", player.Index, 0f, 0f, 0f, 0);
                 NetMessage.SendData(50, -1, -1, "", player.Index, 0f, 0f, 0f, 0);
 
-                for (int k = 0; k < NetItem.maxNetInventory; k++)
+                for (int k = 0; k < NetItem.MaxInventory; k++)
                 {
                     NetMessage.SendData(5, player.Index, -1, "", player.Index, (float)k, 0f, 0f, 0);
                 }
@@ -388,7 +388,7 @@ namespace CharacterReset
                                         if (i < TShock.ServerSideCharacterConfig.StartingInventory.Count)
                                         {
                                             var item = TShock.ServerSideCharacterConfig.StartingInventory[i];
-                                            inventory.Append(item.netID).Append(',').Append(item.stack).Append(',').Append(item.prefix);
+                                            inventory.Append(item.NetId).Append(',').Append(item.Stack).Append(',').Append(item.PrefixId);
                                         }
                                         else
                                         {
@@ -528,7 +528,7 @@ namespace CharacterReset
                                     if (i < TShock.ServerSideCharacterConfig.StartingInventory.Count)
                                     {
                                         var item = TShock.ServerSideCharacterConfig.StartingInventory[i];
-                                        inventory.Append(item.netID).Append(',').Append(item.stack).Append(',').Append(item.prefix);
+                                        inventory.Append(item.NetId).Append(',').Append(item.Stack).Append(',').Append(item.PrefixId);
                                     }
                                     else
                                     {
@@ -606,9 +606,9 @@ namespace CharacterReset
                 Item give;
                 foreach (NetItem item in StarterItems)
                 {
-                    give = TShock.Utils.GetItemById(item.netID);
-                    give.stack = item.stack;
-                    give.prefix = (byte)item.prefix;
+                    give = TShock.Utils.GetItemById(item.NetId);
+                    give.stack = item.Stack;
+                    give.prefix = item.PrefixId;
 
                     if (player.InventorySlotAvailable)
                     {
