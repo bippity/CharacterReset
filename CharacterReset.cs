@@ -11,7 +11,7 @@ using TerrariaApi.Server;
 
 namespace CharacterReset
 {
-    [ApiVersion(1, 17)]
+    [ApiVersion(1, 19)]
     public class CharacterReset : TerrariaPlugin
     {
         #region Plugin Info
@@ -87,7 +87,7 @@ namespace CharacterReset
             {
                 if (args.MsgID == PacketTypes.TileGetSection)
                 {
-                    if (Netplay.serverSock[args.Msg.whoAmI].state == 2)
+                    if (Netplay.Clients[args.Msg.whoAmI].State == 2)
                     {
                         CleanInventory(args.Msg.whoAmI);
                     }
@@ -329,7 +329,7 @@ namespace CharacterReset
                                     ResetStats(players[0]);
                                     ResetInventory(players[0]);
                                     ResetQuests(players[0]);
-                                    player.SendSuccessMessage(players[0].UserAccountName + "'s character has been reset!");
+                                    player.SendSuccessMessage(players[0].User.Name + "'s character has been reset!");
                                     players[0].SendInfoMessage("Your character has been reset!");
                                 }
                                 else
@@ -351,7 +351,7 @@ namespace CharacterReset
                                 if (online)
                                 {
                                     ResetStats(players[0]);
-                                    player.SendSuccessMessage(players[0].UserAccountName + "'s stats have been reset!");
+                                    player.SendSuccessMessage(players[0].User.Name + "'s stats have been reset!");
                                     players[0].SendInfoMessage("Your stats have been reset!");
                                 }
                                 else
@@ -373,7 +373,7 @@ namespace CharacterReset
                                 if (online)
                                 {
                                     ResetInventory(players[0]);
-                                    player.SendSuccessMessage(players[0].UserAccountName + "'s inventory has been reset!");
+                                    player.SendSuccessMessage(players[0].User.Name + "'s inventory has been reset!");
                                     players[0].SendInfoMessage("Your inventory has been reset!");
                                 }
                                 else
@@ -413,7 +413,7 @@ namespace CharacterReset
                                 if (online)
                                 {
                                     ResetQuests(players[0]);
-                                    player.SendSuccessMessage(players[0].UserAccountName + "'s quests have been reset to 0!");
+                                    player.SendSuccessMessage(players[0].User.Name + "'s quests have been reset to 0!");
                                     players[0].SendInfoMessage("Your quests have been reset to 0!");
                                 }
                                 else
