@@ -17,7 +17,7 @@ namespace CharacterReset
         #region Plugin Info
             public override Version Version
             {
-                get { return new Version("1.2"); }
+                get { return new Version("1.3"); }
             }
             public override string Name
             {
@@ -118,19 +118,43 @@ namespace CharacterReset
             {
                 for (int i = 0; i < NetItem.MaxInventory; i++)
                 {
-                    if (i < NetItem.MaxInventory - (NetItem.ArmorSlots + NetItem.DyeSlots)) //main inventory excluding the special slots
+                    if (i < NetItem.InventorySlots) //main inventory excluding the special slots //replace with NetItem.InventorySlots?
                     {
                         player.TPlayer.inventory[i].netDefaults(0);
                     }
-                    else if (i < NetItem.MaxInventory - NetItem.DyeSlots)
+                    else if (i < NetItem.InventorySlots + NetItem.ArmorSlots)
                     {
-                        var index = i - (NetItem.MaxInventory - (NetItem.ArmorSlots + NetItem.DyeSlots));
+                        var index = i - NetItem.InventorySlots;
                         player.TPlayer.armor[index].netDefaults(0);
+                    }
+                    else if (i < NetItem.InventorySlots + NetItem.ArmorSlots + NetItem.DyeSlots)
+                    {
+                        var index = i - (NetItem.InventorySlots + NetItem.ArmorSlots);
+                        player.TPlayer.dye[index].netDefaults(0);
+                    }
+                    else if (i < NetItem.InventorySlots + NetItem.ArmorSlots + NetItem.DyeSlots + NetItem.MiscEquipSlots)
+                    {
+                        var index = i - (NetItem.InventorySlots + NetItem.ArmorSlots + NetItem.DyeSlots);
+                        player.TPlayer.miscEquips[index].netDefaults(0);
+                    }
+                    else if (i < NetItem.InventorySlots + NetItem.ArmorSlots + NetItem.DyeSlots + NetItem.MiscEquipSlots + NetItem.MiscDyeSlots)
+                    {
+                        var index = i - (NetItem.InventorySlots + NetItem.ArmorSlots + NetItem.DyeSlots + NetItem.MiscEquipSlots);
+                        player.TPlayer.miscDyes[index].netDefaults(0);
+                    }
+                    else if (i < NetItem.InventorySlots + NetItem.ArmorSlots + NetItem.DyeSlots + NetItem.MiscEquipSlots + NetItem.MiscDyeSlots + NetItem.PiggySlots) //piggy Bank
+                    {
+                        var index = i - (NetItem.InventorySlots + NetItem.ArmorSlots + NetItem.DyeSlots + NetItem.MiscEquipSlots + NetItem.MiscDyeSlots);
+                        player.TPlayer.bank.item[index].netDefaults(0);
+                    }
+                    else if (i < NetItem.InventorySlots + NetItem.ArmorSlots + NetItem.DyeSlots + NetItem.MiscEquipSlots + NetItem.MiscDyeSlots + NetItem.PiggySlots + NetItem.SafeSlots) //safe Bank
+                    {
+                        var index = i - (NetItem.InventorySlots + NetItem.ArmorSlots + NetItem.DyeSlots + NetItem.MiscEquipSlots + NetItem.MiscDyeSlots + NetItem.PiggySlots);
+                        player.TPlayer.bank2.item[index].netDefaults(0);
                     }
                     else
                     {
-                        var index = i - (NetItem.MaxInventory - NetItem.DyeSlots);
-                        player.TPlayer.dye[index].netDefaults(0);
+                        player.TPlayer.trashItem.netDefaults(0);
                     }
                 }
 
