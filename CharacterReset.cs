@@ -11,13 +11,13 @@ using TerrariaApi.Server;
 
 namespace CharacterReset
 {
-    [ApiVersion(1, 19)]
+    [ApiVersion(1, 20)]
     public class CharacterReset : TerrariaPlugin
     {
         #region Plugin Info
             public override Version Version
             {
-                get { return new Version("1.3"); }
+                get { return new Version("1.2"); }
             }
             public override string Name
             {
@@ -144,13 +144,13 @@ namespace CharacterReset
                     }
                     else if (i < NetItem.InventorySlots + NetItem.ArmorSlots + NetItem.DyeSlots + NetItem.MiscEquipSlots + NetItem.MiscDyeSlots + NetItem.PiggySlots) //piggy Bank
                     {
-                        var index = i - (NetItem.InventorySlots + NetItem.ArmorSlots + NetItem.DyeSlots + NetItem.MiscEquipSlots + NetItem.MiscDyeSlots);
-                        player.TPlayer.bank.item[index].netDefaults(0);
+                        //var index = i - (NetItem.InventorySlots + NetItem.ArmorSlots + NetItem.DyeSlots + NetItem.MiscEquipSlots + NetItem.MiscDyeSlots);
+                        //player.TPlayer.bank.item[index].netDefaults(0);
                     }
                     else if (i < NetItem.InventorySlots + NetItem.ArmorSlots + NetItem.DyeSlots + NetItem.MiscEquipSlots + NetItem.MiscDyeSlots + NetItem.PiggySlots + NetItem.SafeSlots) //safe Bank
                     {
-                        var index = i - (NetItem.InventorySlots + NetItem.ArmorSlots + NetItem.DyeSlots + NetItem.MiscEquipSlots + NetItem.MiscDyeSlots + NetItem.PiggySlots);
-                        player.TPlayer.bank2.item[index].netDefaults(0);
+                        //var index = i - (NetItem.InventorySlots + NetItem.ArmorSlots + NetItem.DyeSlots + NetItem.MiscEquipSlots + NetItem.MiscDyeSlots + NetItem.PiggySlots);
+                        //player.TPlayer.bank2.item[index].netDefaults(0);
                     }
                     else
                     {
@@ -158,10 +158,11 @@ namespace CharacterReset
                     }
                 }
 
-                for (int k = 0; k < NetItem.MaxInventory; k++)
+                for (int k = 0; k < NetItem.MaxInventory - (NetItem.SafeSlots + NetItem.PiggySlots); k++)
                 {
                     NetMessage.SendData(5, -1, -1, "", player.Index, (float)k, 0f, 0f, 0);
                 }
+                NetMessage.SendData(5, -1, -1, "", player.Index, (float)NetItem.MaxInventory, 0f, 0f, 0); //trash item
 
                 for (int k = 0; k < Player.maxBuffs; k++)
                 {
@@ -173,10 +174,11 @@ namespace CharacterReset
                 NetMessage.SendData(16, -1, -1, "", player.Index, 0f, 0f, 0f, 0);
                 NetMessage.SendData(50, -1, -1, "", player.Index, 0f, 0f, 0f, 0);
 
-                for (int k = 0; k < NetItem.MaxInventory; k++)
+                for (int k = 0; k < NetItem.MaxInventory - (NetItem.SafeSlots + NetItem.PiggySlots); k++)
                 {
                     NetMessage.SendData(5, player.Index, -1, "", player.Index, (float)k, 0f, 0f, 0);
                 }
+                NetMessage.SendData(5, player.Index, -1, "", player.Index, (float)NetItem.MaxInventory, 0f, 0f, 0);
 
                 for (int k = 0; k < Player.maxBuffs; k++)
                 {
@@ -198,7 +200,7 @@ namespace CharacterReset
                     {
                         if (args.Parameters.Count == 0)
                         {
-                            player.SendErrorMessage("Invalid syntax! Proper syntax: /resetcharacter <all/stats/inventory/quests>");
+                            player.SendErrorMessage("Invalid syntax! Proper syntax: /resetcharacter <all/stats/inventory/quests/banks>");
                             return;
                         }
 
@@ -288,8 +290,28 @@ namespace CharacterReset
                                 }
                                 break;
 
+                            case "banks":
+                                try
+                                {
+                                    if (player.Group.HasPermission("characterreset.banks"))
+                                    {
+                                        ResetBanks(player);
+                                        player.SendSuccessMessage("Your banks have been reset!");
+                                    }
+                                    else
+                                    {
+                                        player.SendErrorMessage("You don't have permission to reset your banks.");
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    TShock.Log.ConsoleError(ex.ToString());
+                                    player.SendErrorMessage("An error occurred while resetting!");
+                                }
+                                break;
+
                             default:
-                                player.SendErrorMessage("Invalid syntax! Proper syntax: /resetcharacter <all/stats/inventory/quests>");
+                                player.SendErrorMessage("Invalid syntax! Proper syntax: /resetcharacter <all/stats/inventory/quests/banks>");
                                 break;
 
                         }
@@ -648,6 +670,27 @@ namespace CharacterReset
                 player.TPlayer.anglerQuestsFinished = 0;
 
                 NetMessage.SendData(76, -1, -1, "", player.Index);
+            }
+
+            public void ResetBanks(TSPlayer player)
+            {
+                for (int k = 0; k < NetItem.PiggySlots; k++)
+                {
+                    player.TPlayer.bank.item[k].netDefaults(0);
+                }
+                for (int k = 0; k < NetItem.SafeSlots; k++)
+                {
+                    player.TPlayer.bank2.item[k].netDefaults(0);
+                }
+
+                for (int k = NetItem.MaxInventory - (NetItem.SafeSlots + NetItem.PiggySlots); k < NetItem.MaxInventory-1; k++)
+                {
+                    NetMessage.SendData(5, -1, -1, "", player.Index, (float)k, 0f, 0f, 0);
+                }
+                for (int k = NetItem.MaxInventory - (NetItem.SafeSlots + NetItem.PiggySlots); k < NetItem.MaxInventory-1; k++)
+                {
+                    NetMessage.SendData(5, player.Index, -1, "", player.Index, (float)k, 0f, 0f, 0);
+                }
             }
         #endregion
     }
