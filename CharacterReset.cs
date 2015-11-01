@@ -11,7 +11,7 @@ using TerrariaApi.Server;
 
 namespace CharacterReset
 {
-    [ApiVersion(1, 20)]
+    [ApiVersion(1, 22)]
     public class CharacterReset : TerrariaPlugin
     {
         #region Plugin Info
