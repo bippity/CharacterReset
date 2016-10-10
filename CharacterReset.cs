@@ -5,13 +5,12 @@ using System.Linq;
 using System.Text;
 using TShockAPI;
 using TShockAPI.DB;
-using TShockAPI.Hooks;
 using Terraria;
 using TerrariaApi.Server;
 
 namespace CharacterReset
 {
-    [ApiVersion(1, 22)]
+    [ApiVersion(1, 25)]
     public class CharacterReset : TerrariaPlugin
     {
         #region Plugin Info
