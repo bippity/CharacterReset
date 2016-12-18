@@ -16,7 +16,7 @@ namespace CharacterReset
 		#region Plugin Info
 		public override Version Version
 		{
-			get { return new Version("1.2"); }
+			get { return new Version("1.3"); }
 		}
 		public override string Name
 		{
@@ -686,7 +686,7 @@ namespace CharacterReset
 			NetMessage.SendData((int)PacketTypes.NumberOfAnglerQuestsCompleted, player.Index, -1, "", player.Index);
 		}
 
-		public void ResetBanks(TSPlayer player) //***Not clearing the first index of safe and none of piggy bank
+		public void ResetBanks(TSPlayer player)
 		{
 			for (int k = 0; k < NetItem.PiggySlots; k++)
 			{
