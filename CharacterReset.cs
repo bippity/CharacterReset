@@ -6,11 +6,12 @@ using System.Text;
 using TShockAPI;
 using TShockAPI.DB;
 using Terraria;
+using Terraria.Localization;
 using TerrariaApi.Server;
 
 namespace CharacterReset
 {
-	[ApiVersion(2, 0)]
+	[ApiVersion(2, 1)]
 	public class CharacterReset : TerrariaPlugin
 	{
 		#region Plugin Info
@@ -164,37 +165,37 @@ namespace CharacterReset
 
 			for (int k = 0; k < NetItem.MaxInventory - (NetItem.SafeSlots + NetItem.PiggySlots + NetItem.ForgeSlots); k++) //clear all slots excluding bank slots, bank slots cleared in ResetBanks method
 			{
-				NetMessage.SendData((int)PacketTypes.PlayerSlot, -1, -1, "", player.Index, (float)k, 0f, 0f, 0);
+				NetMessage.SendData((int)PacketTypes.PlayerSlot, -1, -1, NetworkText.Empty, player.Index, (float)k, 0f, 0f, 0);
 			}
 
 			var trashSlot = NetItem.InventorySlots + NetItem.ArmorSlots + NetItem.DyeSlots + NetItem.MiscEquipSlots + NetItem.MiscDyeSlots + NetItem.PiggySlots + NetItem.SafeSlots;
-			NetMessage.SendData((int)PacketTypes.PlayerSlot, -1, -1, "", player.Index, (float)trashSlot, 0f, 0f, 0); //trash slot
+			NetMessage.SendData((int)PacketTypes.PlayerSlot, -1, -1, NetworkText.Empty, player.Index, (float)trashSlot, 0f, 0f, 0); //trash slot
 
 			for (int k = 0; k < Player.maxBuffs; k++)
 			{
 				player.TPlayer.buffType[k] = 0;
 			}
 
-			NetMessage.SendData((int)PacketTypes.PlayerInfo, -1, -1, player.Name, player.Index, 0f, 0f, 0f, 0);
-			NetMessage.SendData((int)PacketTypes.PlayerMana, -1, -1, "", player.Index, 0f, 0f, 0f, 0);
-			NetMessage.SendData((int)PacketTypes.PlayerHp, -1, -1, "", player.Index, 0f, 0f, 0f, 0);
-			NetMessage.SendData((int)PacketTypes.PlayerBuff, -1, -1, "", player.Index, 0f, 0f, 0f, 0);
+			NetMessage.SendData((int)PacketTypes.PlayerInfo, -1, -1, NetworkText.FromLiteral(player.Name), player.Index, 0f, 0f, 0f, 0);
+			NetMessage.SendData((int)PacketTypes.PlayerMana, -1, -1, NetworkText.Empty, player.Index, 0f, 0f, 0f, 0);
+			NetMessage.SendData((int)PacketTypes.PlayerHp, -1, -1, NetworkText.Empty, player.Index, 0f, 0f, 0f, 0);
+			NetMessage.SendData((int)PacketTypes.PlayerBuff, -1, -1, NetworkText.Empty, player.Index, 0f, 0f, 0f, 0);
 
 			for (int k = 0; k < NetItem.MaxInventory - (NetItem.SafeSlots + NetItem.PiggySlots); k++)
 			{
-				NetMessage.SendData((int)PacketTypes.PlayerSlot, player.Index, -1, "", player.Index, (float)k, 0f, 0f, 0);
+				NetMessage.SendData((int)PacketTypes.PlayerSlot, player.Index, -1, NetworkText.Empty, player.Index, (float)k, 0f, 0f, 0);
 			}
-			NetMessage.SendData((int)PacketTypes.PlayerSlot, player.Index, -1, "", player.Index, (float)trashSlot, 0f, 0f, 0);
+			NetMessage.SendData((int)PacketTypes.PlayerSlot, player.Index, -1, NetworkText.Empty, player.Index, (float)trashSlot, 0f, 0f, 0);
 
 			for (int k = 0; k < Player.maxBuffs; k++)
 			{
 				player.TPlayer.buffType[k] = 0;
 			}
 
-			NetMessage.SendData((int)PacketTypes.PlayerInfo, player.Index, -1, player.Name, player.Index, 0f, 0f, 0f, 0);
-			NetMessage.SendData((int)PacketTypes.PlayerMana, player.Index, -1, "", player.Index, 0f, 0f, 0f, 0);
-			NetMessage.SendData((int)PacketTypes.PlayerHp, player.Index, -1, "", player.Index, 0f, 0f, 0f, 0);
-			NetMessage.SendData((int)PacketTypes.PlayerBuff, player.Index, -1, "", player.Index, 0f, 0f, 0f, 0);
+			NetMessage.SendData((int)PacketTypes.PlayerInfo, player.Index, -1, NetworkText.FromLiteral(player.Name), player.Index, 0f, 0f, 0f, 0);
+			NetMessage.SendData((int)PacketTypes.PlayerMana, player.Index, -1, NetworkText.Empty, player.Index, 0f, 0f, 0f, 0);
+			NetMessage.SendData((int)PacketTypes.PlayerHp, player.Index, -1, NetworkText.Empty, player.Index, 0f, 0f, 0f, 0);
+			NetMessage.SendData((int)PacketTypes.PlayerBuff, player.Index, -1, NetworkText.Empty, player.Index, 0f, 0f, 0f, 0);
 		}
 
 		private void ResetCharacter(CommandArgs args)
@@ -646,15 +647,15 @@ namespace CharacterReset
 			player.TPlayer.statMana = startMana;
 			player.TPlayer.statManaMax = startMana;
 
-			NetMessage.SendData(4, -1, -1, player.Name, player.Index, 0f, 0f, 0f, 0);
-			NetMessage.SendData(42, -1, -1, "", player.Index, 0f, 0f, 0f, 0);
-			NetMessage.SendData(16, -1, -1, "", player.Index, 0f, 0f, 0f, 0);
-			NetMessage.SendData(50, -1, -1, "", player.Index, 0f, 0f, 0f, 0);
+			NetMessage.SendData(4, -1, -1, NetworkText.FromLiteral(player.Name), player.Index, 0f, 0f, 0f, 0);
+			NetMessage.SendData(42, -1, -1, NetworkText.Empty, player.Index, 0f, 0f, 0f, 0);
+			NetMessage.SendData(16, -1, -1, NetworkText.Empty, player.Index, 0f, 0f, 0f, 0);
+			NetMessage.SendData(50, -1, -1, NetworkText.Empty, player.Index, 0f, 0f, 0f, 0);
 
-			NetMessage.SendData(4, player.Index, -1, player.Name, player.Index, 0f, 0f, 0f, 0);
-			NetMessage.SendData(42, player.Index, -1, "", player.Index, 0f, 0f, 0f, 0);
-			NetMessage.SendData(16, player.Index, -1, "", player.Index, 0f, 0f, 0f, 0);
-			NetMessage.SendData(50, player.Index, -1, "", player.Index, 0f, 0f, 0f, 0);
+			NetMessage.SendData(4, player.Index, -1, NetworkText.FromLiteral(player.Name), player.Index, 0f, 0f, 0f, 0);
+			NetMessage.SendData(42, player.Index, -1, NetworkText.Empty, player.Index, 0f, 0f, 0f, 0);
+			NetMessage.SendData(16, player.Index, -1, NetworkText.Empty, player.Index, 0f, 0f, 0f, 0);
+			NetMessage.SendData(50, player.Index, -1, NetworkText.Empty, player.Index, 0f, 0f, 0f, 0);
 		}
 
 		public void ResetInventory(TSPlayer player)
@@ -672,7 +673,7 @@ namespace CharacterReset
 				if (player.InventorySlotAvailable)
 				{
 					player.TPlayer.inventory[slot] = give;
-					NetMessage.SendData((int)PacketTypes.PlayerSlot, -1, -1, string.Empty, player.Index, slot);
+					NetMessage.SendData((int)PacketTypes.PlayerSlot, -1, -1, NetworkText.Empty, player.Index, slot);
 					slot++;
 				}
 			}
@@ -682,8 +683,8 @@ namespace CharacterReset
 		{
 			player.TPlayer.anglerQuestsFinished = 0;
 
-			NetMessage.SendData((int)PacketTypes.NumberOfAnglerQuestsCompleted, -1, -1, "", player.Index);
-			NetMessage.SendData((int)PacketTypes.NumberOfAnglerQuestsCompleted, player.Index, -1, "", player.Index);
+			NetMessage.SendData((int)PacketTypes.NumberOfAnglerQuestsCompleted, -1, -1, NetworkText.Empty, player.Index);
+			NetMessage.SendData((int)PacketTypes.NumberOfAnglerQuestsCompleted, player.Index, -1, NetworkText.Empty, player.Index);
 		}
 
 		public void ResetBanks(TSPlayer player)
@@ -703,11 +704,11 @@ namespace CharacterReset
 
 			for (int k = NetItem.MaxInventory - (NetItem.PiggySlots + NetItem.SafeSlots + NetItem.ForgeSlots)-1; k < NetItem.MaxInventory; k++)
 			{
-				NetMessage.SendData((int)PacketTypes.PlayerSlot, -1, -1, "", player.Index, (float)k, 0f, 0f, 0);
+				NetMessage.SendData((int)PacketTypes.PlayerSlot, -1, -1, NetworkText.Empty, player.Index, (float)k, 0f, 0f, 0);
 			}
 			for (int k = NetItem.MaxInventory - (NetItem.PiggySlots + NetItem.SafeSlots + NetItem.ForgeSlots)-1; k < NetItem.MaxInventory; k++)
 			{
-				NetMessage.SendData((int)PacketTypes.PlayerSlot, player.Index, -1, "", player.Index, (float)k, 0f, 0f, 0);
+				NetMessage.SendData((int)PacketTypes.PlayerSlot, player.Index, -1, NetworkText.Empty, player.Index, (float)k, 0f, 0f, 0);
 			}
 		}
 		#endregion
