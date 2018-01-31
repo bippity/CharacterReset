@@ -1,4 +1,5 @@
 Character Reset
+[![Build Status](https://travis-ci.org/bippity/CharacterReset.svg?branch=master)](https://travis-ci.org/bippity/CharacterReset)
 ============
 
 Lets players manually reset their character back to the server's SSC default character.
