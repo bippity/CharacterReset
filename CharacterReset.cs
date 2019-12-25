@@ -363,7 +363,7 @@ namespace CharacterReset
 				if (!online)
 				{
 					//if (TShock.Users.GetUserByName(username) == null) //outdated
-					if (TSPlayer.FindByNameOrID(username) == null)
+					if (TShock.UserAccounts.GetUserAccountByName(username) == null)
 					{
 						player.SendErrorMessage("Username \"{0}\" not found in database.", username);
 						return;
@@ -371,7 +371,7 @@ namespace CharacterReset
 					else
 					{
 						//userid = TShock.Users.GetUserByName(username).ID;
-						var plr = players[0];
+						userid = TShock.UserAccounts.GetUserAccountID(username); //resetting offline player works but is case sensitive
 					}
 				}
 
