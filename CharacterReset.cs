@@ -207,7 +207,7 @@ namespace CharacterReset
         private void ResetCharacter(CommandArgs args)
         {
             TSPlayer player = args.Player;
-            if (player != null)
+            if (player != null && player.RealPlayer)
             {
                 if (Main.ServerSideCharacter)
                 {
@@ -334,6 +334,10 @@ namespace CharacterReset
                 }
                 else
                     player.SendErrorMessage("SSC is not enabled on this server! \nThis plugin will only work if SSC (Server Side Characters) is enabled!");
+            }
+            else
+            {
+                player.SendErrorMessage("Server console cannot use this command, because it is not a real player!");
             }
         }
 
