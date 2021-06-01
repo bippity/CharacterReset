@@ -17,7 +17,7 @@ namespace CharacterReset
         #region Plugin Info
         public override Version Version
         {
-            get { return new Version("1.3"); }
+            get { return new Version("1.4"); }
         }
         public override string Name
         {
@@ -25,7 +25,7 @@ namespace CharacterReset
         }
         public override string Author
         {
-            get { return "Bippity"; }
+            get { return "Bippity, updated by moisterrific"; }
         }
         public override string Description
         {
