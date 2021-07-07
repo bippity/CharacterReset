@@ -206,6 +206,7 @@ namespace CharacterReset
 
         private void ResetCharacter(CommandArgs args)
         {
+            var cmd = TShock.Config.Settings.CommandSpecifier;
             TSPlayer player = args.Player;
             if (player != null && player.RealPlayer)
             {
@@ -214,7 +215,7 @@ namespace CharacterReset
                     if (args.Parameters.Count == 0)
                     {
                         //player.SendErrorMessage("Invalid syntax! Proper syntax: /resetcharacter <all|stats|inventory|quests|banks>");
-                        player.SendErrorMessage("Invalid syntax! Proper syntax: {0}resetcharacter <all|stats|inventory|quests|banks>", TShock.Config.Settings.CommandSpecifier);
+                        player.SendErrorMessage($"Invalid syntax! Proper syntax: {cmd}resetcharacter <all|stats|inventory|quests|banks>");
                         return;
                     }
 
@@ -327,7 +328,7 @@ namespace CharacterReset
 
                         default:
                             //player.SendErrorMessage("Invalid syntax! Proper syntax: /resetcharacter <all|stats|inventory|quests|banks>");
-                            player.SendErrorMessage("Invalid syntax! Proper syntax: {0}resetcharacter <all|stats|inventory|quests|banks>", TShock.Config.Settings.CommandSpecifier);
+                            player.SendErrorMessage($"Invalid syntax! Proper syntax: {cmd}resetcharacter <all|stats|inventory|quests|banks>");
                             break;
 
                     }
@@ -343,13 +344,14 @@ namespace CharacterReset
 
         public void ResetPlayer(CommandArgs args)
         {
+            var cmd = TShock.Config.Settings.CommandSpecifier;
             TSPlayer player = args.Player;
 
             if (Main.ServerSideCharacter)
             {
                 if (args.Parameters.Count < 2)
                 {
-                    player.SendErrorMessage("Invalid syntax! Proper syntax: {0}resetplayer <username> <all|stats|inventory|quests>", TShock.Config.Settings.CommandSpecifier);
+                    player.SendErrorMessage($"Invalid syntax! Proper syntax: {cmd}resetplayer <username> <all|stats|inventory|quests>");
                     return;
                 }
 
@@ -377,7 +379,7 @@ namespace CharacterReset
                     if (TShock.UserAccounts.GetUserAccountByName(username) == null)
                     {
                         //player.SendErrorMessage("Username \"{0}\" not found in database. (Usernames are case-sensitive)", username);
-                        player.SendErrorMessage("Username {0} not found in database. (Usernames are case-sensitive)", username);
+                        player.SendErrorMessage($"Username {username} not found in database. (Usernames are case-sensitive)");
                         return;
                     }
                     else
@@ -398,18 +400,18 @@ namespace CharacterReset
                                 ResetInventory(players[0]);
                                 ResetQuests(players[0]);
                                 ResetBanks(players[0]);
-                                player.SendSuccessMessage(players[0].Name + "'s character has been reset!");
+                                player.SendSuccessMessage($"{players[0].Name}'s character has been reset!");
                                 players[0].SendInfoMessage("Your character has been reset!");
                             }
                             else
                             {
                                 TShock.CharacterDB.RemovePlayer(userid);
-                                player.SendSuccessMessage(username + "'s character has been reset!");
+                                player.SendSuccessMessage($"{username}'s character has been reset!");
                             }
                         }
                         catch (Exception ex)
                         {
-                            player.SendErrorMessage("An error occurred while resetting all for: " + username);
+                            player.SendErrorMessage($"An error occurred while resetting all for: {username}");
                             TShock.Log.ConsoleError(ex.ToString());
                         }
                         break;
@@ -420,18 +422,18 @@ namespace CharacterReset
                             if (online)
                             {
                                 ResetStats(players[0]);
-                                player.SendSuccessMessage(players[0].Name + "'s stats have been reset!");
+                                player.SendSuccessMessage($"{players[0].Name}'s stats have been reset!");
                                 players[0].SendInfoMessage("Your stats have been reset!");
                             }
                             else
                             {
                                 db.Query("UPDATE tsCharacter SET Health = @0, MaxHealth = @1, Mana = @2, MaxMana = @3 WHERE Account = @4;", startHealth, startHealth, startMana, startMana, userid);
-                                player.SendSuccessMessage(players[0].Name + "'s stats have been reset!");
+                                player.SendSuccessMessage($"{players[0].Name}'s stats have been reset!");
                             }
                         }
                         catch (Exception ex)
                         {
-                            player.SendErrorMessage("An error occurred while resetting stats for: " + players[0].Name);
+                            player.SendErrorMessage($"An error occurred while resetting stats for: {players[0].Name}");
                             TShock.Log.ConsoleError(ex.ToString());
                         }
                         break;
@@ -443,7 +445,7 @@ namespace CharacterReset
                             {
                                 ResetInventory(players[0]);
                                 ResetBanks(players[0]);
-                                player.SendSuccessMessage(players[0].Name + "'s inventory has been reset!");
+                                player.SendSuccessMessage($"{players[0].Name}'s inventory has been reset!");
                                 players[0].SendInfoMessage("Your inventory has been reset!");
                             }
                             else
@@ -468,12 +470,12 @@ namespace CharacterReset
                                 }
                                 string initialItems = inventory.ToString();
                                 db.Query("UPDATE tsCharacter SET Inventory = @0 WHERE Account = @1;", initialItems, userid);
-                                player.SendSuccessMessage(username + "'s inventory has been reset!");
+                                player.SendSuccessMessage($"{username}'s inventory has been reset!");
                             }
                         }
                         catch (Exception ex)
                         {
-                            player.SendErrorMessage("An error occurred while resetting inventory for :" + username);
+                            player.SendErrorMessage($"An error occurred while resetting inventory for: {username}");
                             TShock.Log.ConsoleError(ex.ToString());
                         }
                         break;
@@ -484,24 +486,24 @@ namespace CharacterReset
                             if (online)
                             {
                                 ResetQuests(players[0]);
-                                player.SendSuccessMessage(players[0].Name + "'s quests have been reset to 0!");
+                                player.SendSuccessMessage($"{players[0].Name}'s quests have been reset to 0!");
                                 players[0].SendInfoMessage("Your quests have been reset to 0!");
                             }
                             else
                             {
                                 db.Query("UPDATE tsCharacter SET questsCompleted = @0 WHERE Account = @1;", 0, userid);
-                                player.SendSuccessMessage(username + "'s quests have been reset to 0!");
+                                player.SendSuccessMessage($"{username}'s quests have been reset to 0!");
                             }
                         }
                         catch (Exception ex)
                         {
-                            player.SendErrorMessage("An error occurred while resetting quests for: " + username);
+                            player.SendErrorMessage($"An error occurred while resetting quests for: {username}");
                             TShock.Log.ConsoleError(ex.ToString());
                         }
                         break;
 
                     default:
-                        player.SendErrorMessage("Invalid syntax! Proper syntax: {0}resetplayer <username> <all|stats|inventory|quests>", TShock.Config.Settings.CommandSpecifier );
+                        player.SendErrorMessage($"Invalid syntax! Proper syntax: {cmd}resetplayer <username> <all|stats|inventory|quests>");
                         break;
                 }
             }
@@ -513,13 +515,14 @@ namespace CharacterReset
 
         public void ResetPlayers(CommandArgs args)
         {
+            var cmd = TShock.Config.Settings.CommandSpecifier;
             TSPlayer player = args.Player;
 
             if (Main.ServerSideCharacter)
             {
                 if (args.Parameters.Count == 0)
                 {
-                    player.SendErrorMessage("Invalid syntax! Proper syntax: {0}resetplayers <all|stats|inventory|quests>", TShock.Config.Settings.CommandSpecifier);
+                    player.SendErrorMessage($"Invalid syntax! Proper syntax: {cmd}resetplayers <all|stats|inventory|quests>");
                     return;
                 }
 
@@ -531,7 +534,14 @@ namespace CharacterReset
                     case "all":
                         try
                         {
-                            TSPlayer.All.SendWarningMessage("Resetting SSC data for all players...");
+                            if (args.Silent)
+                            {
+                                player.SendWarningMessage("Resetting SSC data for all players...");
+                            }
+                            else
+                            {
+                                TSPlayer.All.SendWarningMessage("Resetting SSC data for all players...");
+                            }
 
                             foreach (TSPlayer temp in TShock.Players) //resets online players
                             {
@@ -546,12 +556,19 @@ namespace CharacterReset
 
                             db.Query("DELETE FROM tsCharacter;"); //deletes all characters in database. Doesn't affect online players unless improper shutdown happens.
 
-                            TSPlayer.All.SendSuccessMessage("SSC data for all players have been reset!");
+                            if (args.Silent)
+                            {
+                                player.SendSuccessMessage("SSC data for all players have been reset!");
+                            }
+                            else
+                            {
+                                TSPlayer.All.SendSuccessMessage("SSC data for all players have been reset!");
+                            }
                             TShock.Log.ConsoleInfo("All players have been reset.");
                         }
                         catch (Exception ex)
                         {
-                            TSPlayer.All.SendErrorMessage("An error occurred while resetting all for all players!");
+                            player.SendErrorMessage("An error occurred while resetting all for all players!");
                             TShock.Log.ConsoleError(ex.ToString());
                         }
                         break;
@@ -559,7 +576,14 @@ namespace CharacterReset
                     case "stats":
                         try
                         {
-                            TSPlayer.All.SendWarningMessage("Resetting all players' stats...");
+                            if (args.Silent)
+                            {
+                                player.SendWarningMessage("Resetting all players' stats...");
+                            }
+                            else 
+                            {
+                                TSPlayer.All.SendWarningMessage("Resetting all players' stats...");
+                            }
 
                             foreach (TSPlayer temp in TShock.Players)
                             {
@@ -569,12 +593,19 @@ namespace CharacterReset
 
                             db.Query("UPDATE tsCharacter SET Health = @0, MaxHealth = @1, Mana = @2, MaxMana = @3", startHealth, startHealth, startMana, startMana);
 
-                            TSPlayer.All.SendSuccessMessage("All players' stats have been reset!");
+                            if (args.Silent)
+                            {
+                                player.SendSuccessMessage("All players' stats have been reset!");
+                            }
+                            else
+                            {
+                                TSPlayer.All.SendSuccessMessage("All players' stats have been reset!");
+                            }
                             TShock.Log.ConsoleInfo("All players' stats have been reset.");
                         }
                         catch (Exception ex)
                         {
-                            TSPlayer.All.SendErrorMessage("An error occurred while resetting stats for all players!");
+                            player.SendErrorMessage("An error occurred while resetting stats for all players!");
                             TShock.Log.ConsoleError(ex.ToString());
                         }
                         break;
@@ -582,7 +613,14 @@ namespace CharacterReset
                     case "inventory":
                         try
                         {
-                            TSPlayer.All.SendWarningMessage("Resetting all players' inventory...");
+                            if (args.Silent)
+                            {
+                                player.SendWarningMessage("Resetting all players' inventory...");
+                            }
+                            else
+                            {
+                                TSPlayer.All.SendWarningMessage("Resetting all players' inventory...");
+                            }
 
                             foreach (TSPlayer temp in TShock.Players)
                             {
@@ -614,12 +652,19 @@ namespace CharacterReset
                             string initialItems = inventory.ToString();
                             db.Query("UPDATE tsCharacter SET Inventory = @0;", initialItems);
 
-                            TSPlayer.All.SendSuccessMessage("All players' inventory has been reset!");
+                            if (args.Silent)
+                            {
+                                player.SendSuccessMessage("All players' inventory has been reset!");
+                            }
+                            else
+                            {
+                                TSPlayer.All.SendSuccessMessage("All players' inventory has been reset!");
+                            }
                             TShock.Log.ConsoleInfo("All players' inventory has been reset.");
                         }
                         catch (Exception ex)
                         {
-                            TSPlayer.All.SendErrorMessage("An error occurred while resetting inventory for all players!");
+                            player.SendErrorMessage("An error occurred while resetting inventory for all players!");
                             TShock.Log.ConsoleError(ex.ToString());
                         }
                         break;
@@ -627,7 +672,14 @@ namespace CharacterReset
                     case "quests":
                         try
                         {
-                            TSPlayer.All.SendWarningMessage("Resetting all players' quests...");
+                            if (args.Silent)
+                            {
+                                player.SendWarningMessage("Resetting all players' quests...");
+                            }
+                            else
+                            {
+                                TSPlayer.All.SendWarningMessage("Resetting all players' quests...");
+                            }
 
                             foreach (TSPlayer temp in TShock.Players)
                             {
@@ -637,18 +689,25 @@ namespace CharacterReset
 
                             db.Query("UPDATE tsCharacter SET questsCompleted = @0;", 0);
 
-                            TSPlayer.All.SendSuccessMessage("All players' quests have been reset to 0!");
+                            if (args.Silent)
+                            {
+                                player.SendSuccessMessage("All players' quests have been reset to 0!");
+                            }
+                            else
+                            {
+                                TSPlayer.All.SendSuccessMessage("All players' quests have been reset to 0!");
+                            }
                             TShock.Log.ConsoleInfo("All players' quests have been reset to 0");
                         }
                         catch (Exception ex)
                         {
-                            TSPlayer.All.SendErrorMessage("An error occurred while resetting quests for all players!");
+                            player.SendErrorMessage("An error occurred while resetting quests for all players!");
                             TShock.Log.ConsoleError(ex.ToString());
                         }
                         break;
 
                     default:
-                        player.SendErrorMessage("Invalid syntax! Proper syntax: {0}resetplayers <all|stats|inventory|quests>", TShock.Config.Settings.CommandSpecifier);
+                        player.SendErrorMessage($"Invalid syntax! Proper syntax: {cmd}resetplayers <all|stats|inventory|quests>");
                         break;
                 }
             }
